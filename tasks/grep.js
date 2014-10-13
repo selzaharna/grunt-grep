@@ -23,7 +23,8 @@ module.exports = function(grunt) {
       endPattern: ':e',
       denotation: '@grep',
       exclude: false,
-      removeDenotationComments: true
+      removeDenotationComments: true,
+      overwrite: false
     };
     var task = this;
 
@@ -42,7 +43,8 @@ module.exports = function(grunt) {
 
     //looping through all of the file pairs
     this.files.forEach(function(f) {
-      var ext;
+      var ext,
+          destPath;
       //for multiple source files a folder should be specified as a destination
       if (f.src.length > 1){
         // several checks for file name in dest instead of folder for multi-line src 
@@ -53,7 +55,8 @@ module.exports = function(grunt) {
           f.src.forEach(function(file){
             var srcContent = readFile(file);
             ext = path.extname(file);
-            grepLines(srcContent, ext, formDestPath(f.dest, file));
+            destPath = options.overwrite ? file : formDestPath(f.dest, file);
+            grepLines(srcContent, ext, destPath);
           });
         } else {
           grunt.fail.warn(f.dest + ' is a file. Destination should be a folder for multiple source files definition.');
@@ -66,7 +69,7 @@ module.exports = function(grunt) {
         }
         var srcContent = readFile(filepath);
         ext = path.extname(filepath);
-        var dest = formFilePath(f.dest, path.basename(filepath));
+        var dest = options.overwrite ? filepath : formFilePath(f.dest, path.basename(filepath));
         grepLines(srcContent, ext, dest);
       }
     });
